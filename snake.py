@@ -70,13 +70,13 @@ def board_update(body, fruit):
                     body_segment_count += 1
                 else:
                     new_row.append(2)
-                    body_segment_count += 1
             elif (r, c) in body:
                 new_row.append(1)
                 body_segment_count += 1
             else:
                 new_row.append(0)
         new_board.append(new_row)
+
     if new_fruit != fruit:
         new_board[new_fruit[0]][new_fruit[1]]
     return new_board, (body_segment_count >= len(body)), new_fruit
@@ -194,6 +194,7 @@ clock = pygame.time.Clock()
 # game objects
 high_score = 0
 score = 0
+reset = False
 
 # row, col format
 board = [[EMPTY for _ in range(DIM_TILES)] for _ in range(DIM_TILES)]
@@ -261,9 +262,31 @@ while running:
             board[fruit_pos[0]][fruit_pos[1]] = 2
 
         old_fruit_pos = fruit_pos
-        board, running, fruit_pos = board_update(player_body, fruit_pos)
+        board, reset, fruit_pos = board_update(player_body, fruit_pos)
         if old_fruit_pos != fruit_pos:
             score += 1
+
+        if (
+            not reset
+            or player_head[0] < 0
+            or player_head[0] > DIM_TILES - 1
+            or player_head[1] < 0
+            or player_head[0] > DIM_TILES - 1
+        ):
+            high_score = score if score > high_score else high_score
+            score = 0
+
+            board = [[EMPTY for _ in range(DIM_TILES)] for _ in range(DIM_TILES)]
+
+            player_body = [generate_random_snake_pos()]
+            player_head = player_body[0]
+            player_body.append((player_head[0] + 1, player_head[1]))
+            for coord in player_body:
+                board[coord[0]][coord[1]] = 1
+            player_dir = UP
+
+            fruit_pos = generate_random_fruit_pos(board)
+            board[fruit_pos[0]][fruit_pos[1]] = 2
 
     # DRAW
     board_draw(screen, board, player_head)
