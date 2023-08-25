@@ -10,6 +10,7 @@ PADDLE_DIM = PADDLE_WIDTH, PADDLE_HEIGHT = (20, 100)
 RAND = -1
 LEFT = UP = 0
 RIGHT = DOWN = 1
+PADDLE_SPEED = 10
 
 
 # FUNCTIONS
@@ -86,13 +87,40 @@ while running:
     # UPDATE
     keys = pygame.key.get_pressed()
 
+    # wait for SPACE to start game
     if not start and keys[K_SPACE]:
         ball_vel_x, ball_vel_y = generate_rand_vel()
         start = True
 
+    # if game has started
     if start:
+        # paddle 1 movement
+        if keys[K_w]:
+            paddle1.y -= PADDLE_SPEED
+        if keys[K_s]:
+            paddle1.y += PADDLE_SPEED
+
+        # paddle 2 movement
+        if keys[K_UP]:
+            paddle2.y -= PADDLE_SPEED
+        if keys[K_DOWN]:
+            paddle2.y += PADDLE_SPEED
+
+        # update ball when game has started
         ball.centerx += ball_vel_x
         ball.centery += ball_vel_y
+
+    # keep paddle 2 on screen
+    if paddle2.top <= 0:
+        paddle2.top = 0
+    elif paddle2.bottom >= HEIGHT:
+        paddle2.bottom = HEIGHT
+
+    # keep paddle 1 on screen
+    if paddle1.top <= 0:
+        paddle1.top = 0
+    elif paddle1.bottom >= HEIGHT:
+        paddle1.bottom = HEIGHT
 
     # bounce at top and bottom of screen
     if ball.top <= 0:
