@@ -35,6 +35,9 @@ def generate_rand_vel(side=RAND):
 
     return v_x, v_y
 
+def collided(rect1, rect2):
+    return rect1.colliderect(rect2)
+
 
 ###############################################################################
 
@@ -46,7 +49,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pong")
 
 # font
-font = pygame.font.SysFont("arial", 20)
+font = pygame.font.SysFont("arial", 100)
 
 # clock
 clock = pygame.time.Clock()
@@ -64,6 +67,7 @@ paddle2 = pygame.Rect(
     PADDLE_WIDTH,
     PADDLE_HEIGHT,
 )
+player_1_score = player_2_score = 0
 
 # ball info
 ball = pygame.Rect((WIDTH // 2) - 10, HEIGHT // 2 - 10, 20, 20)
@@ -132,13 +136,23 @@ while running:
 
     # bounce at left and right of screen
     if ball.left <= 0:
-        ball.left = 1
-        ball_vel_x *= -1
+        player_2_score += 1
+        # ball_vel_x, ball_vel_y = 10, 10
+        ball.x = WIDTH//2
+        ball.y = HEIGHT//2
     elif ball.right >= WIDTH:
-        ball.right = WIDTH - 1
-        ball_vel_x *= -1
+        player_1_score += 1
+        # ball_vel_x, ball_vel_y = 10, 10
+        ball.x = WIDTH//2
+        ball.y = HEIGHT//2
 
+    if collided(paddle1, ball) or collided(paddle2, ball):
+        ball_vel_x *= -1
     # DRAW
+    text1 = font.render(f"{player_1_score}", False, (255, 255, 255))
+    text2 = font.render(f"{player_2_score}", False, (255, 255, 255))
+    screen.blit(text1, (0+200, 0))
+    screen.blit(text2, (WIDTH-50-200, 0))
     pygame.draw.rect(screen, "white", paddle1, border_radius=10)
     pygame.draw.rect(screen, "white", paddle2, border_radius=10)
     pygame.draw.ellipse(screen, "white", ball)
