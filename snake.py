@@ -25,13 +25,13 @@ def generate_random_snake_pos() -> tuple:
 
 
 def snake_move(keys, player_dir) -> tuple:
-    if keys[K_w] and player_dir != DOWN:
+    if (keys[K_w] or keys[K_UP]) and player_dir != DOWN:
         return UP
-    if keys[K_a] and player_dir != RIGHT:
+    if (keys[K_a] or keys[K_LEFT]) and player_dir != RIGHT:
         return LEFT
-    if keys[K_s] and player_dir != UP:
+    if (keys[K_s] or keys[K_DOWN]) and player_dir != UP:
         return DOWN
-    if keys[K_d] and player_dir != LEFT:
+    if (keys[K_d] or keys[K_RIGHT]) and player_dir != LEFT:
         return RIGHT
 
     return player_dir
@@ -87,10 +87,10 @@ def draw_head(surface, r, c):
         surface,
         "black",
         pygame.Rect(
-            c * TILE_SIZE + 2,
-            r * TILE_SIZE + 2,
-            TILE_SIZE - 4,
-            TILE_SIZE - 4,
+            c * TILE_SIZE + (0.025 * TILE_SIZE),
+            r * TILE_SIZE + (0.025 * TILE_SIZE),
+            TILE_SIZE - (0.05 * TILE_SIZE),
+            TILE_SIZE - (0.05 * TILE_SIZE),
         ),
         border_radius=25,
     )
@@ -99,10 +99,10 @@ def draw_head(surface, r, c):
         surface,
         "red",
         pygame.Rect(
-            c * TILE_SIZE + (TILE_SIZE // 2 - 15),
-            r * TILE_SIZE + (TILE_SIZE // 2 - 15),
-            30,
-            30,
+            c * TILE_SIZE + (TILE_SIZE // 2 - (0.1875 * TILE_SIZE)),
+            r * TILE_SIZE + (TILE_SIZE // 2 - (0.1875 * TILE_SIZE)),
+            (0.1875 * 2 * TILE_SIZE),
+            (0.1875 * 2 * TILE_SIZE),
         ),
         border_radius=20,
     )
@@ -113,10 +113,10 @@ def draw_body(surface, r, c):
         surface,
         "black",
         pygame.Rect(
-            c * TILE_SIZE + 2,
-            r * TILE_SIZE + 2,
-            TILE_SIZE - 4,
-            TILE_SIZE - 4,
+            c * TILE_SIZE + (0.025 * TILE_SIZE),
+            r * TILE_SIZE + (0.025 * TILE_SIZE),
+            TILE_SIZE - (0.05 * TILE_SIZE),
+            TILE_SIZE - (0.05 * TILE_SIZE),
         ),
         border_radius=25,
     )
