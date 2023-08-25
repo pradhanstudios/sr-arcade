@@ -49,7 +49,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pong")
 
 # font
-font = pygame.font.SysFont("arial", 100)
+font = pygame.font.SysFont("arial", 48)
 
 # clock
 clock = pygame.time.Clock()
@@ -137,12 +137,14 @@ while running:
     # bounce at left and right of screen
     if ball.left <= 0:
         player_2_score += 1
+        ball_vel_x *= -1
         # ball_vel_x, ball_vel_y = 10, 10
         ball.x = WIDTH//2
         ball.y = HEIGHT//2
     elif ball.right >= WIDTH:
         player_1_score += 1
         # ball_vel_x, ball_vel_y = 10, 10
+        ball_vel_x *= -1
         ball.x = WIDTH//2
         ball.y = HEIGHT//2
 
