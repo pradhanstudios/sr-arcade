@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+from random import choice
 
 ##########
 # consts #
@@ -79,7 +80,7 @@ class Enemy:
         self.start_row = True
         self.start_pos = start_pos
         self.direction = direction
-        self.speed = 100
+        self.speed = 10
 
         self.range = 250
         self.start_col = start_pos[0]
@@ -95,6 +96,7 @@ class Enemy:
             if self.rect.centerx >= self.end_col or self.rect.centerx <= self.start_col:
                 self.rect.y += 40
                 self.direction *= -1
+                self.speed += 1
 
             self.rect.centerx += self.speed * self.direction
         else:
@@ -102,8 +104,13 @@ class Enemy:
                 self.rect.y += 40
                 self.direction *= -1
                 self.start_row = False
+                self.speed += 1
 
             self.rect.centerx += self.speed * self.direction
+
+    def shoot(self):
+        enemy_bullet_list.append(Bullet(self.rect.midbottom, DOWN))
+
 
 
 #########
@@ -141,14 +148,13 @@ p1 = Player()
 enemies = [
     Enemy((x, y), RIGHT) for x in range(50, 450, 50) for y in range(100, 300, 40)
 ]
+enemy_bullet_list = []
 
 #############
 # game loop #
 #############
 frame_counter = 0
 running = True
-# last_fired = 0
-# shoot_cooldown = 1000
 while running:
     ##############
     # event loop #
@@ -161,7 +167,6 @@ while running:
                 running = False
 
     # clear last frame
-    # screen.fill("black")
 
     ##################
     # update objects #
@@ -170,17 +175,24 @@ while running:
 
     now = pygame.time.get_ticks()
     p1.move(pressed_keys)
+    if p1.lives <= 0:
+        running = False
 
-    if pressed_keys[K_SPACE]:  # and now - last_fired >= shoot_cooldown:
+    if pressed_keys[K_SPACE]:  
         p1.shoot()
-        # last_fired = pygame.time.get_ticks()
+    
+    if frame_counter % 20 == 0:
+        choice(enemies).shoot()
 
     if frame_counter % 40 == 0:
         for enemy in enemies:
-            if enemy.rect.bottom >= 700:
-                running = False
-            # print(enemy.rect.bottom)
-            enemy.move()
+            if enemy:
+                if enemy.rect.bottom >= 700:
+                    running = False
+                # print(enemy.rect.bottom)
+                enemy.move()
+    
+
             
 
     ########
@@ -200,11 +212,32 @@ while running:
     screen.blit(game_screen, (0, 50))
     game_screen.fill("black")
     game_screen.blit(p1.surface, p1.rect)
+    # bullets
+    for bullet in enemy_bullet_list:
+        bullet.move()
+        bullet.draw(game_screen)
     p1.draw_bullets(game_screen)
 
     for enemy in enemies:
         game_screen.blit(enemy.surface, enemy.rect)
 
+    if not enemies:
+        running = False
+
+    # print(p1.rect.collidelistall(enemies))
+    if p1.rect.collidelistall(enemies):
+        running = False
+
+    for bulletindex in range(len(p1.bullet_list)):
+        for enemy in p1.bullet_list[bulletindex].rect.collidelistall(enemies):
+            del enemies[enemy]
+            del p1.bullet_list[bulletindex]
+
+
+    for bulletindex in range(len(enemy_bullet_list)):
+        if enemy_bullet_list[bulletindex-1].rect.colliderect(p1.rect):
+            p1.lives -= 1
+            del enemy_bullet_list[bulletindex-1]
     # instructions bar
     screen.blit(instr_bar, (0, 750))
     instr_bar.fill("black")
