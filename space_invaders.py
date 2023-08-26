@@ -79,7 +79,7 @@ class Enemy:
         self.start_row = True
         self.start_pos = start_pos
         self.direction = direction
-        self.speed = 5
+        self.speed = 20
 
         self.range = 250
         self.start_col = start_pos[0]
@@ -93,11 +93,13 @@ class Enemy:
     def move(self):
         if not self.start_row:
             if self.rect.centerx >= self.end_col or self.rect.centerx <= self.start_col:
+                self.rect.y += 40
                 self.direction *= -1
 
             self.rect.centerx += self.speed * self.direction
         else:
             if self.rect.centerx >= self.end_col:
+                self.rect.y += 40
                 self.direction *= -1
                 self.start_row = False
 
