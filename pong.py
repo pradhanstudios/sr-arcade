@@ -46,7 +46,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pong")
 
 # font
-font = pygame.font.SysFont("arial", 48)
+font = pygame.font.Font("assets/fonts/PressStart2P.ttf", 48)
 
 # clock
 clock = pygame.time.Clock()
@@ -135,15 +135,15 @@ while running:
     if ball.left <= 0:
         player_2_score += 1
         ball_vel_x *= -1
-        # ball_vel_x, ball_vel_y = 10, 10
-        ball.x = WIDTH // 2
-        ball.y = HEIGHT // 2
+        ball.centerx = WIDTH // 2
+        ball.centery = HEIGHT // 2
+        ball_vel_x, ball_vel_y = generate_rand_vel(RIGHT)
     elif ball.right >= WIDTH:
         player_1_score += 1
-        # ball_vel_x, ball_vel_y = 10, 10
         ball_vel_x *= -1
-        ball.x = WIDTH // 2
-        ball.y = HEIGHT // 2
+        ball.centerx = WIDTH // 2
+        ball.centery = HEIGHT // 2
+        ball_vel_x, ball_vel_y = generate_rand_vel(LEFT)
 
     if ball.colliderect(paddle1) or ball.colliderect(paddle2):
         ball_vel_x *= -1
@@ -153,8 +153,8 @@ while running:
     # score
     text1 = font.render(f"{player_1_score}", True, (255, 255, 255))
     text2 = font.render(f"{player_2_score}", True, (255, 255, 255))
-    screen.blit(text1, (0 + 200, 0))
-    screen.blit(text2, (WIDTH - 50 - 200, 0))
+    screen.blit(text1, (0 + 200, 10))
+    screen.blit(text2, (WIDTH - font.size(f"{player_2_score}")[0] - 200, 10))
 
     # objects
     pygame.draw.rect(screen, "white", paddle1, border_radius=10)
