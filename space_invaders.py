@@ -58,7 +58,7 @@ class Bullet:
         self.direction = direction
         self.speed = 10
 
-        self.surface = pygame.surface.Surface((5, 15))
+        self.surface = pygame.surface.Surface((20, 15))
         if self.direction == UP:
             self.surface.fill("green")
         elif self.direction == DOWN:
@@ -180,8 +180,8 @@ while running:
 
     if pressed_keys[K_SPACE]:  
         p1.shoot()
-    
-    if frame_counter % 20 == 0:
+    # print(len(enemy_bullet_list))
+    if frame_counter % 20 == 0 and len(enemy_bullet_list) < 3:
         choice(enemies).shoot()
 
     if frame_counter % 40 == 0:
@@ -237,7 +237,14 @@ while running:
     for bulletindex in range(len(enemy_bullet_list)):
         if enemy_bullet_list[bulletindex-1].rect.colliderect(p1.rect):
             p1.lives -= 1
-            del enemy_bullet_list[bulletindex-1]
+            enemy_bullet_list.pop(bulletindex-1)
+        if enemy_bullet_list[bulletindex-1].rect.y >= HEIGHT:
+            enemy_bullet_list.pop(bulletindex-1)
+        for bulleti in range(len(p1.bullet_list)):
+            if p1.bullet_list[bulleti].rect.colliderect(enemy_bullet_list[bulletindex-1]):
+                enemy_bullet_list.pop(bulletindex-1)
+                p1.bullet_list.pop(bulleti)
+
     # instructions bar
     screen.blit(instr_bar, (0, 750))
     instr_bar.fill("black")
