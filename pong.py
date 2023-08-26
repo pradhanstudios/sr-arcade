@@ -35,9 +35,6 @@ def generate_rand_vel(side=RAND):
 
     return v_x, v_y
 
-def collided(rect1, rect2):
-    return rect1.colliderect(rect2)
-
 
 ###############################################################################
 
@@ -148,8 +145,9 @@ while running:
         ball.x = WIDTH//2
         ball.y = HEIGHT//2
 
-    if collided(paddle1, ball) or collided(paddle2, ball):
+    if ball.colliderect(paddle1) or ball.colliderect(paddle2):
         ball_vel_x *= -1
+
     # DRAW
     text1 = font.render(f"{player_1_score}", False, (255, 255, 255))
     text2 = font.render(f"{player_2_score}", False, (255, 255, 255))
