@@ -26,9 +26,9 @@ class Player:
         self.rect = self.surface.get_rect(center=(WIDTH // 2, 650))
 
     def move(self, keys) -> None:
-        if pressed_keys[K_a] or pressed_keys[K_LEFT]:
+        if keys[K_a] or keys[K_LEFT]:
             self.rect.x -= self.speed
-        if pressed_keys[K_d] or pressed_keys[K_RIGHT]:
+        if keys[K_d] or keys[K_RIGHT]:
             self.rect.x += self.speed
 
         if self.rect.left < 0:
@@ -40,8 +40,11 @@ class Player:
             bullet.move()
 
             if bullet.rect.bottom < 0:
-                self.bullet_list.remove(bullet)
-                del bullet
+                self.rm_bullet(bullet)
+
+    def rm_bullet(self, bullet):
+        self.bullet_list.remove(bullet)
+        # del bullet
 
     def shoot(self) -> None:
         if len(self.bullet_list) == 0:
@@ -112,7 +115,6 @@ class Enemy:
         enemy_bullet_list.append(Bullet(self.rect.midbottom, DOWN))
 
 
-
 #########
 # setup #
 #########
@@ -178,10 +180,10 @@ while running:
     if p1.lives <= 0:
         running = False
 
-    if pressed_keys[K_SPACE]:  
+    if pressed_keys[K_SPACE]:
         p1.shoot()
     # print(len(enemy_bullet_list))
-    if frame_counter % 20 == 0 and len(enemy_bullet_list) < 3:
+    if frame_counter % 120 == 0 and len(enemy_bullet_list) < 3:
         choice(enemies).shoot()
 
     if frame_counter % 40 == 0:
@@ -191,9 +193,6 @@ while running:
                     running = False
                 # print(enemy.rect.bottom)
                 enemy.move()
-    
-
-            
 
     ########
     # draw #
@@ -211,6 +210,8 @@ while running:
     # game screen
     screen.blit(game_screen, (0, 50))
     game_screen.fill("black")
+
+    # player
     game_screen.blit(p1.surface, p1.rect)
     # bullets
     for bullet in enemy_bullet_list:
@@ -228,11 +229,11 @@ while running:
     if p1.rect.collidelistall(enemies):
         running = False
 
-    for bullet in p1.bullet_list:
-        for enemy in bullet.rect.collidelistall(enemies):
+    if len(p1.bullet_list) > 0:
+        for enemy in p1.bullet_list[0].rect.collidelistall(enemies):
+            # enemies.remove(enemy)
             del enemies[enemy]
-            p1.bullet_list.remove(bullet)
-
+            p1.rm_bullet(p1.bullet_list[0])
 
     for bul in enemy_bullet_list:
         if bul.rect.colliderect(p1.rect):
