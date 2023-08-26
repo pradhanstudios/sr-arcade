@@ -79,7 +79,7 @@ class Enemy:
         self.start_row = True
         self.start_pos = start_pos
         self.direction = direction
-        self.speed = 20
+        self.speed = 100
 
         self.range = 250
         self.start_col = start_pos[0]
@@ -177,7 +177,11 @@ while running:
 
     if frame_counter % 40 == 0:
         for enemy in enemies:
+            if enemy.rect.bottom >= 700:
+                running = False
+            # print(enemy.rect.bottom)
             enemy.move()
+            
 
     ########
     # draw #
