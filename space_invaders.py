@@ -6,10 +6,11 @@ from pygame.locals import *
 ##########
 WIDTH, HEIGHT = 700, 800
 UP, DOWN = -1, 1
+LEFT, RIGHT = -1, 1
 
 
 ###########
-# Classes #
+# classes #
 ###########
 class Player:
     def __init__(self):
@@ -73,6 +74,36 @@ class Bullet:
         surface.blit(self.surface, self.rect)
 
 
+class Enemy:
+    def __init__(self, start_pos: tuple, direction: int):
+        self.start_row = True
+        self.start_pos = start_pos
+        self.direction = direction
+        self.speed = 5
+
+        self.range = 250
+        self.start_col = start_pos[0]
+        self.end_col = start_pos[0] + self.range
+
+        self.surface = pygame.surface.Surface((40, 20))
+        self.surface.fill("white")
+
+        self.rect = self.surface.get_rect(center=start_pos)
+
+    def move(self):
+        if not self.start_row:
+            if self.rect.centerx >= self.end_col or self.rect.centerx <= self.start_col:
+                self.direction *= -1
+
+            self.rect.centerx += self.speed * self.direction
+        else:
+            if self.rect.centerx >= self.end_col:
+                self.direction *= -1
+                self.start_row = False
+
+            self.rect.centerx += self.speed * self.direction
+
+
 #########
 # setup #
 #########
@@ -104,16 +135,15 @@ instr_bar = pygame.surface.Surface((WIDTH, 50))
 # player
 p1 = Player()
 
-# list of entities
-
 # list of enemies
-
-# list of bullets
-# bullet_list = []
+enemies = [
+    Enemy((x, y), RIGHT) for x in range(50, 450, 50) for y in range(100, 300, 40)
+]
 
 #############
 # game loop #
 #############
+frame_counter = 0
 running = True
 # last_fired = 0
 # shoot_cooldown = 1000
@@ -143,6 +173,10 @@ while running:
         p1.shoot()
         # last_fired = pygame.time.get_ticks()
 
+    if frame_counter % 40 == 0:
+        for enemy in enemies:
+            enemy.move()
+
     ########
     # draw #
     ########
@@ -161,6 +195,9 @@ while running:
     game_screen.fill("black")
     game_screen.blit(p1.surface, p1.rect)
     p1.draw_bullets(game_screen)
+
+    for enemy in enemies:
+        game_screen.blit(enemy.surface, enemy.rect)
 
     # instructions bar
     screen.blit(instr_bar, (0, 750))
@@ -188,6 +225,9 @@ while running:
     ##########
     pygame.display.flip()
 
+    frame_counter += 1
+    if frame_counter == 80:
+        frame_counter = 0
     clock.tick(60)
 
 
