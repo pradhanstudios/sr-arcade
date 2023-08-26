@@ -136,23 +136,27 @@ while running:
         player_2_score += 1
         ball_vel_x *= -1
         # ball_vel_x, ball_vel_y = 10, 10
-        ball.x = WIDTH//2
-        ball.y = HEIGHT//2
+        ball.x = WIDTH // 2
+        ball.y = HEIGHT // 2
     elif ball.right >= WIDTH:
         player_1_score += 1
         # ball_vel_x, ball_vel_y = 10, 10
         ball_vel_x *= -1
-        ball.x = WIDTH//2
-        ball.y = HEIGHT//2
+        ball.x = WIDTH // 2
+        ball.y = HEIGHT // 2
 
     if ball.colliderect(paddle1) or ball.colliderect(paddle2):
         ball_vel_x *= -1
 
     # DRAW
-    text1 = font.render(f"{player_1_score}", False, (255, 255, 255))
-    text2 = font.render(f"{player_2_score}", False, (255, 255, 255))
-    screen.blit(text1, (0+200, 0))
-    screen.blit(text2, (WIDTH-50-200, 0))
+
+    # score
+    text1 = font.render(f"{player_1_score}", True, (255, 255, 255))
+    text2 = font.render(f"{player_2_score}", True, (255, 255, 255))
+    screen.blit(text1, (0 + 200, 0))
+    screen.blit(text2, (WIDTH - 50 - 200, 0))
+
+    # objects
     pygame.draw.rect(screen, "white", paddle1, border_radius=10)
     pygame.draw.rect(screen, "white", paddle2, border_radius=10)
     pygame.draw.ellipse(screen, "white", ball)
