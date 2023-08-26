@@ -5,6 +5,73 @@ from pygame.locals import *
 # consts #
 ##########
 WIDTH, HEIGHT = 700, 800
+UP, DOWN = -1, 1
+
+
+###########
+# Classes #
+###########
+class Player:
+    def __init__(self):
+        self.bullet_list = []
+
+        self.lives = 3
+        self.speed = 5
+
+        self.surface = pygame.surface.Surface((60, 20))
+        self.surface.fill("green")
+
+        self.rect = self.surface.get_rect(center=(WIDTH // 2, 650))
+
+    def move(self, keys) -> None:
+        if pressed_keys[K_a] or pressed_keys[K_LEFT]:
+            self.rect.x -= self.speed
+        if pressed_keys[K_d] or pressed_keys[K_RIGHT]:
+            self.rect.x += self.speed
+
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > WIDTH:
+            self.rect.right = WIDTH
+
+        for bullet in self.bullet_list:
+            bullet.move()
+
+            if bullet.rect.bottom < 0:
+                self.bullet_list.remove(bullet)
+                del bullet
+
+    def shoot(self) -> None:
+        if len(self.bullet_list) == 0:
+            self.bullet_list.append(Bullet(self.rect.midtop, UP))
+
+    def draw_bullets(self, surface):
+        for bullet in self.bullet_list:
+            bullet.draw(surface)
+
+
+class Bullet:
+    def __init__(self, start_pos: tuple, direction: int):
+        self.start_pos = start_pos
+        self.direction = direction
+        self.speed = 10
+
+        self.surface = pygame.surface.Surface((5, 15))
+        if self.direction == UP:
+            self.surface.fill("green")
+        elif self.direction == DOWN:
+            self.surface.fill("white")
+        else:
+            self.surface.fill("red")
+
+        self.rect = self.surface.get_rect(center=start_pos)
+
+    def move(self):
+        self.rect.y += self.direction * self.speed
+
+    def draw(self, surface):
+        surface.blit(self.surface, self.rect)
+
 
 #########
 # setup #
@@ -19,7 +86,8 @@ pygame.display.set_caption("Space Invaders")
 clock = pygame.time.Clock()
 
 # fonts
-font = pygame.font.Font("assets/fonts/PressStart2P.ttf", 20)
+font1 = pygame.font.Font("assets/fonts/PressStart2P.ttf", 20)
+font2 = pygame.font.Font("assets/fonts/PressStart2P.ttf", 14)
 
 ################
 # game objects #
@@ -27,17 +95,28 @@ font = pygame.font.Font("assets/fonts/PressStart2P.ttf", 20)
 
 # game info
 score = 0
-lives = 3
 
 # surfaces
 status_bar = pygame.surface.Surface((WIDTH, 50))
 game_screen = pygame.surface.Surface((WIDTH, 700))
 instr_bar = pygame.surface.Surface((WIDTH, 50))
 
+# player
+p1 = Player()
+
+# list of entities
+
+# list of enemies
+
+# list of bullets
+# bullet_list = []
+
 #############
 # game loop #
 #############
 running = True
+# last_fired = 0
+# shoot_cooldown = 1000
 while running:
     ##############
     # event loop #
@@ -50,11 +129,19 @@ while running:
                 running = False
 
     # clear last frame
-    screen.fill("black")
+    # screen.fill("black")
 
     ##################
     # update objects #
     ##################
+    pressed_keys = pygame.key.get_pressed()
+
+    now = pygame.time.get_ticks()
+    p1.move(pressed_keys)
+
+    if pressed_keys[K_SPACE]:  # and now - last_fired >= shoot_cooldown:
+        p1.shoot()
+        # last_fired = pygame.time.get_ticks()
 
     ########
     # draw #
@@ -62,22 +149,45 @@ while running:
 
     # status bar
     screen.blit(status_bar, (0, 0))
-    score_text = font.render(f"SCORE: {score}", True, "white")
+    status_bar.fill("black")
+    score_text = font1.render(f"SCORE: {score}", True, "white")
     status_bar.blit(score_text, (10, 15))
-    lives_text = font.render(f"LIVES: {lives}", True, "white")
-    status_bar.blit(lives_text, (WIDTH - font.size(f"LIVES: {lives}")[0] - 10, 15))
+    lives_text = font1.render(f"LIVES: {p1.lives}", True, "white")
+    status_bar.blit(lives_text, (WIDTH - font1.size(f"LIVES: {p1.lives}")[0] - 10, 15))
     pygame.draw.aaline(status_bar, "white", (0, 49), (WIDTH, 49))
 
     # game screen
     screen.blit(game_screen, (0, 50))
+    game_screen.fill("black")
+    game_screen.blit(p1.surface, p1.rect)
+    p1.draw_bullets(game_screen)
 
     # instructions bar
     screen.blit(instr_bar, (0, 750))
+    instr_bar.fill("black")
+    pygame.draw.aaline(instr_bar, "white", (0, 0), (WIDTH, 0))
+    move_text = font2.render(
+        "Use <- and -> or A and D to move left and right", True, "white"
+    )
+    instr_bar.blit(
+        move_text,
+        (
+            (WIDTH // 2)
+            - (font2.size("Use <- and -> or A and D to move left and right")[0] // 2),
+            5,
+        ),
+    ),
+    shoot_text = font2.render("Use SPACEBAR to shoot", True, "white")
+    instr_bar.blit(
+        shoot_text,
+        ((WIDTH // 2) - (font2.size("Use SPACEBAR to shoot")[0] // 2), 28),
+    )
 
     ##########
     # render #
     ##########
     pygame.display.flip()
+
     clock.tick(60)
 
 
