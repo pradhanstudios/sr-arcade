@@ -228,22 +228,22 @@ while running:
     if p1.rect.collidelistall(enemies):
         running = False
 
-    for bulletindex in range(len(p1.bullet_list)):
-        for enemy in p1.bullet_list[bulletindex].rect.collidelistall(enemies):
+    for bullet in p1.bullet_list:
+        for enemy in bullet.rect.collidelistall(enemies):
             del enemies[enemy]
-            del p1.bullet_list[bulletindex]
+            p1.bullet_list.remove(bullet)
 
 
-    for bulletindex in range(len(enemy_bullet_list)):
-        if enemy_bullet_list[bulletindex-1].rect.colliderect(p1.rect):
+    for bul in enemy_bullet_list:
+        if bul.rect.colliderect(p1.rect):
+            enemy_bullet_list.remove(bul)
             p1.lives -= 1
-            enemy_bullet_list.pop(bulletindex-1)
-        if enemy_bullet_list[bulletindex-1].rect.y >= HEIGHT:
-            enemy_bullet_list.pop(bulletindex-1)
-        for bulleti in range(len(p1.bullet_list)):
-            if p1.bullet_list[bulleti].rect.colliderect(enemy_bullet_list[bulletindex-1]):
-                enemy_bullet_list.pop(bulletindex-1)
-                p1.bullet_list.pop(bulleti)
+        if bul.rect.y >= HEIGHT:
+            enemy_bullet_list.remove(bul)
+        for bullet in p1.bullet_list:
+            if bullet.rect.colliderect(bul.rect):
+                p1.bullet_list.remove(bullet)
+                enemy_bullet_list.remove(bul)
 
     # instructions bar
     screen.blit(instr_bar, (0, 750))
