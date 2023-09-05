@@ -77,6 +77,14 @@ class Bullet:
     def draw(self, surface):
         surface.blit(self.surface, self.rect)
 
+    def list_collision(self, l):
+        output = []
+        for idx, re in enumerate(l):
+            if self.rect.colliderect(re.rect):
+                output.append(idx)
+
+        return output
+
 
 class Enemy:
     def __init__(self, start_pos: tuple, direction: int):
@@ -229,11 +237,15 @@ while running:
     if p1.rect.collidelistall(enemies):
         running = False
 
-    if len(p1.bullet_list) > 0:
-        for enemy in p1.bullet_list[0].rect.collidelistall(enemies):
-            # enemies.remove(enemy)
-            del enemies[enemy]
-            p1.rm_bullet(p1.bullet_list[0])
+    for b in p1.bullet_list:
+        for enemy in b.list_collision(enemies):
+            # print(enemy)
+            try:
+                del enemies[enemy]
+            except IndexError:
+                pass
+            for i in range(len(p1.bullet_list)):
+                del p1.bullet_list[i]
 
     for bul in enemy_bullet_list:
         if bul.rect.colliderect(p1.rect):
