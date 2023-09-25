@@ -1,3 +1,6 @@
+import pygame
+from pygame.locals import *
+
 # CONTSTANTS
 """
 PIECES (for my refence)
@@ -51,6 +54,7 @@ PIECES = [
         [0, 0, 0, 0],
     ],
 ]
+RESOLUTION = WIDTH, HEIGHT = (800, 800)
 
 
 def displace_arr(arr: list[list[int]], t_left: tuple, displace: list[list[int]]):
@@ -114,12 +118,28 @@ class Piece:
         ]
 
 
-board = TetrisBoard()
-print(board)
-displace = Piece(PIECES[2], (0, 3))
-print(displace)
-displace.rotate()
-print(displace)
-board.displace(displace.cur_pos, displace.piece)
-board.displace((3, 4), displace.piece)
-print(board)
+pygame.init()
+screen = pygame.display.set_mode(RESOLUTION)
+pygame.display.set_caption("Snake")
+
+# font
+font = pygame.font.SysFont("arial", 20)
+
+pygame.display.set_caption("Tetris")
+
+
+running = True
+while running:
+    # event loop
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == KEYDOWN:
+            if event.key == K_ESCAPE:
+                running = False
+
+        screen.fill("darkgray")
+        pygame.display.flip()
+
+
+pygame.quit()
