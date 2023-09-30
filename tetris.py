@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import numpy as np
 
 # CONTSTANTS
 """
@@ -44,39 +45,41 @@ PIECES (for my refence)
 1
 """
 PIECES = [
-    [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
-    [[1, 1], [1, 1]],
-    [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
-    [
+    np.array([[0, 1, 1], [1, 1, 0], [0, 0, 0]]),
+    np.array([[1, 1], [1, 1]]),
+    np.array([[0, 1, 0], [1, 1, 1], [0, 0, 0]]),
+    np.array([
         [1, 1, 1, 1],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
-    ],
+    ]),
 ]
 RESOLUTION = WIDTH, HEIGHT = (800, 800)
 
 
-def displace_arr(arr: list[list[int]], t_left: tuple, displace: list[list[int]]):
-    carr = [[0 for _ in arr[0]] for _ in arr]
-    for i in range(len(displace)):
-        for j in range(len(displace[i])):
-            carr[i + t_left[0]][j + t_left[1]] = displace[i][j]
+def displace_arr(arr, t_left: tuple, displace):
+    x1, y1 = t_left
+    x2, y2 = displace.shape
+    print(arr)
+    print(arr[y1: y2 + y1, x1:x2 + x1] )
+    arr[y1: y2 + y1, x1:x2 + x1] |= displace
+    
+    # carr = [[0 for _ in arr[0]] for _ in arr]
+    # for i in range(len(displace)):
+    #     for j in range(len(displace[i])):
+    #         carr[i + t_left[0]][j + t_left[1]] = displace[i][j]
 
-    return carr
+    # return carr
 
 
 def merge_list(l1, l2):  # l1 and l2 should be the same size
-    output = [[0 for _ in l1[0]] for _ in l1]
-    for i in range(len(l1)):
-        for j in range(len(l1[i])):
-            output[i][j] = l1[i][j] | l2[i][j]
-    return output
+    return l1 | l2
 
 
 class TetrisBoard:
     def __init__(self, rows=20, cols=10):
-        self.arr = [[0 for _ in range(cols)] for _ in range(rows)]
+        self.arr = np.array([[0 for _ in range(cols)] for _ in range(rows)])
 
     def __str__(self):
         output = ""
@@ -86,14 +89,14 @@ class TetrisBoard:
             output += "\n"
         return output
 
-    def displace(self, t_left: tuple, displace: list[list[int]]):
-        self.arr = merge_list(self.arr, displace_arr(self.arr, t_left, displace))
+    def displace(self, t_left: tuple, displace):
+        displace_arr(self.arr, t_left, displace)
 
 
 class Piece:
     def __init__(self, piece, cur_pos):
         self.piece = piece
-        self.undo = [[0 for _ in range(len(piece[0]))] for _ in range(len(piece))]
+        self.undo = np.array([[0 for _ in range(len(piece[0]))] for _ in range(len(piece))])
         self.cur_pos = cur_pos
 
     def __str__(self):
@@ -105,22 +108,26 @@ class Piece:
         return output
 
     def rotate(self):
-        N = len(self.piece)
-        for i in range(N // 2):
-            for j in range(i, N - i - 1):
-                temp = self.piece[i][j]
-                self.piece[i][j] = self.piece[N - 1 - j][i]
-                self.piece[N - 1 - j][i] = self.piece[N - 1 - i][N - 1 - j]
-                self.piece[N - 1 - i][N - 1 - j] = self.piece[j][N - 1 - i]
-                self.piece[j][N - 1 - i] = temp
-        self.undo = [
-            [0 for _ in range(len(self.piece[0]))] for _ in range(len(self.piece))
-        ]
+        self.piece = np.rot90(self.piece)
+
+    def displace_on(self, board: TetrisBoard):
+        board.displace(self.cur_pos, self.piece)
+
+    def undo_displace_on(self, board: TetrisBoard):
+        board.displace(self.cur_pos, self.undo)
 
 
 pygame.init()
 screen = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption("Snake")
+board = TetrisBoard()
+piece = Piece(PIECES[0], (5, 3))
+print(piece)
+piece.rotate()
+print(piece)
+print(board)
+piece.displace_on(board)
+print(board)
 
 # font
 font = pygame.font.SysFont("arial", 20)
