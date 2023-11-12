@@ -44,7 +44,7 @@ PIECES (for my refence)
 1
 1
 """
-DOWN = (0, -1)
+DOWN = (0, 1)
 
 PIECES = [
     np.array([[0, 1, 1], [1, 1, 0], [0, 0, 0]]),
@@ -82,15 +82,28 @@ def undo_displace_arr(arr, t_left: tuple, displace):
     arr[y1: y2 + y1, x1:x2 + x1] &= np.bitwise_not(displace)
 
 
-t_addition = lambda t1, t2: (t1[0] - t2[0], t1[1] - t2[1])
+t_addition = lambda t1, t2: (t1[0] + t2[0], t1[1] + t2[1])
+t_flip = lambda t1: (t1[1], t1[0])
 
 def merge_list(l1, l2):  # l1 and l2 should be the same size
     return l1 | l2
 
 def touching(arr, t_left, displace):
-    x1, y1 = t_left
-    x2, y2 = displace.shape
-    return any(arr[y1: y2 + y1, x1:x2 + x1] & displace)
+    places = []
+    checkrow = [i for i in displace[::-1] if any(i)][0]
+    top_left = t_flip(t_left)
+
+    for i in range(len(checkrow)):
+        places.append(t_addition(top_left, (checkrow[i]+1, i)))
+    
+
+    print(places, checkrow)
+
+    for y, x in places:
+        if arr[y][x]:
+            return True
+    
+    return False
 
 class TetrisBoard:
     def __init__(self, rows=20, cols=10):
@@ -162,7 +175,12 @@ piece = Piece(PIECES[0], (0, 0))
 piece.displace_on(board)
 print(board)
 piece.move_down_on(board)
+piece.move_down_on(board)
+# piece.move_down_on(board)
+board.arr[3][0] = 1
 print(board)
+
+print(touching(board.arr, piece.cur_pos, piece.piece))
 
 # font
 # font = pygame.font.SysFont("arial", 20)
