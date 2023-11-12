@@ -79,7 +79,7 @@ def undo_displace_arr(arr, t_left: tuple, displace):
     x2, y2 = displace.shape
     # print(arr)
     # print(arr[y1: y2 + y1, x1:x2 + x1] )
-    arr[y1: y2 + y1, x1:x2 + x1] &= displace
+    arr[y1: y2 + y1, x1:x2 + x1] &= np.bitwise_not(displace)
 
 
 t_addition = lambda t1, t2: (t1[0] - t2[0], t1[1] - t2[1])
@@ -121,7 +121,6 @@ class TetrisBoard:
 class Piece:
     def __init__(self, piece, cur_pos):
         self.piece = piece
-        self.undo = np.array([[0 for _ in range(len(piece[0]))] for _ in range(len(piece))])
         self.cur_pos = cur_pos
 
     def __str__(self):
@@ -143,7 +142,7 @@ class Piece:
 
     def undo_displace_on(self, board: TetrisBoard):
         # print(self.undo)
-        board.undo_displace(self.cur_pos, self.undo)
+        board.undo_displace(self.cur_pos, self.piece)
 
     def move_down_on(self, board: TetrisBoard):
         if not self.is_on_last_row():
